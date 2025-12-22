@@ -1,1 +1,1 @@
-bin/main.ml: Char Corpus Format List Option Printf Stdlib String Tuplified_corpus
+bin/main.ml: Array Char Corpus Format In_channel List Option Printf Stdlib String Sys Tuplified_corpus

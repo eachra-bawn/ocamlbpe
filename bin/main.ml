@@ -1,19 +1,26 @@
+let input_string_from_file file = In_channel.with_open_bin file In_channel.input_all
+let input_string_from_stdin () = In_channel.input_line In_channel.stdin
+
 let input_string =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor \
-   incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud \
-   exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure \
-   dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla \
-   pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia \
-   deserunt mollit anim id est laborum."
+  Printf.printf "Length of argv: %d\n" (Array.length Sys.argv);
+  if Array.length Sys.argv > 1
+  then (
+    let user_input = Sys.argv.(1) in
+    match Sys.file_exists user_input with
+    | true -> input_string_from_file user_input
+    | false -> raise (Invalid_argument "File name provided does not exist, or is invalid"))
+  else Option.get (input_string_from_stdin ())
 ;;
 
-let add_end_of_word_tokens str =
-  let words = String.split_on_char ' ' str in
+let add_end_of_word_tokens input_string =
+  let words = String.split_on_char ' ' input_string in
   List.fold_left (fun acc w -> (w ^ "_ ") ^ acc) "" words
 ;;
 
 let () =
-  Printf.printf "string w. eow tokens: %s\n\n" (add_end_of_word_tokens input_string)
+  Printf.printf
+    "Input string with end of word tokens: %s\n"
+    (add_end_of_word_tokens input_string)
 ;;
 
 let create_vocab str =
@@ -214,6 +221,6 @@ let generate_corpus_stage i =
 ;;
 
 let () =
-  let generated_corpus = generate_corpus_stage 80 in
+  let generated_corpus = generate_corpus_stage 2 in
   Corpus.pretty_print generated_corpus
 ;;

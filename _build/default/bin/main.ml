@@ -1,19 +1,34 @@
+let input_string_from_file file = In_channel.with_open_bin file In_channel.input_all
+let input_string_from_stdin () = In_channel.input_line In_channel.stdin
+
 let input_string =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor \
-   incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud \
-   exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure \
-   dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla \
-   pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia \
-   deserunt mollit anim id est laborum."
+  Printf.printf "Length of argv: %d\n" (Array.length Sys.argv);
+  if Array.length Sys.argv > 1
+  then (
+    let user_input = Sys.argv.(1) in
+    match Sys.file_exists user_input with
+    | true -> input_string_from_file user_input
+    | false -> raise (Invalid_argument "File name provided does not exist, or is invalid"))
+  else Option.get (input_string_from_stdin ())
 ;;
 
-let add_end_of_word_tokens str =
-  let words = String.split_on_char ' ' str in
+(* match Sys.argv.(1) with *)
+(* | String.empty -> Option.get (input_string_from_stdin ()) *)
+(* | "" -> *)
+(*    let file_ends_with ending = String.ends_with ~suffix:ending s in *)
+(*   if file_ends_with ".txt" || file_ends_with ".md" || file_ends_with ".html" *)
+(*   then input_string_from_file s *)
+(*   else "" *)
+
+let add_end_of_word_tokens input_string =
+  let words = String.split_on_char ' ' input_string in
   List.fold_left (fun acc w -> (w ^ "_ ") ^ acc) "" words
 ;;
 
 let () =
-  Printf.printf "string w. eow tokens: %s\n\n" (add_end_of_word_tokens input_string)
+  Printf.printf
+    "Input string with end of word tokens: %s\n"
+    (add_end_of_word_tokens input_string)
 ;;
 
 let create_vocab str =
@@ -45,7 +60,6 @@ let pp_token_max fmt (x, y) = Format.fprintf fmt "most common token -> (%s, %s)\
 
 let get_token_max tuplified_corpus =
   let rec get_token_max_impl tuplified_corpus n ~token_max ~token_max_count =
-    (* Printf.printf "n is %d\n" n; *)
     if n = Tuplified_corpus.length tuplified_corpus - 1
     then token_max
     else (
@@ -78,7 +92,6 @@ let get_token_max tuplified_corpus =
             0
             tuplified_corpus_unravelled
         in
-        (* Printf.printf "current_token_count: %d\n" current_token_count; *)
         if current_token_count > token_max_count
         then
           get_token_max_impl
@@ -141,20 +154,12 @@ let corpus_learner (corpus : Corpus.t) (token_max : string * string) =
         in
         let new_cv = List.drop (first_fst_token_max_index_plus_acc_val + 1) cv in
         let tokens_dropped = List.length cv - List.length new_cv in
-        (* Printf.printf *)
-        (*   "first_fst_token_max_index_plus_acc_val: %d\n" *)
-        (*   first_fst_token_max_index_plus_acc_val; *)
-        (* Printf.printf "length of original_cv: %d\n" (List.length original_cv); *)
-        (* Printf.printf *)
-        (*   "first_fst_token_max_index_plus_acc_val + 1: %d\n" *)
-        (*   (first_fst_token_max_index_plus_acc_val + 1); *)
         if List.length original_cv - 1 < first_fst_token_max_index_plus_acc_val + 1
         then first_fst_token_max_index_plus_acc
         else (
           let check_for_snd_token_max =
             List.nth original_cv (first_fst_token_max_index_plus_acc_val + 1)
           in
-          (* Printf.printf "after here!\n"; *)
           if check_for_snd_token_max = snd_token_max_val
           then first_fst_token_max_index_plus_acc
           else search_fst_token_max_index_impl new_cv cv tokens_dropped))
@@ -224,6 +229,6 @@ let generate_corpus_stage i =
 ;;
 
 let () =
-  let generated_corpus = generate_corpus_stage 80 in
+  let generated_corpus = generate_corpus_stage 2 in
   Corpus.pretty_print generated_corpus
 ;;
