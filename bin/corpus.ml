@@ -40,5 +40,7 @@ let pretty_print corpus =
   let pp_corpus crps =
     Format.pp_print_list ~pp_sep:(fun ppf () -> Format.fprintf ppf "\n") pp_tuple crps
   in
-  Format.printf "corpus:\n@[<h>@;<0 2>%a@;<0 0>@]\n\n" pp_corpus corpus
+  Printf.printf "\n";
+  Printf.printf "Tokenized result:\n";
+  Format.printf "@[<h>@;<0 2>%a@;<0 0>@]\n\n" pp_corpus corpus
 ;;

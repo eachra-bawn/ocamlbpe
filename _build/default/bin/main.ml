@@ -1,37 +1,15 @@
-let input_string_from_file file = In_channel.with_open_bin file In_channel.input_all
-let input_string_from_stdin () = In_channel.input_line In_channel.stdin
-
-let input_string =
-  Printf.printf "Length of argv: %d\n" (Array.length Sys.argv);
-  if Array.length Sys.argv > 1
-  then (
-    let user_input = Sys.argv.(1) in
-    match Sys.file_exists user_input with
-    | true -> input_string_from_file user_input
-    | false -> raise (Invalid_argument "File name provided does not exist, or is invalid"))
-  else Option.get (input_string_from_stdin ())
-;;
-
-(* match Sys.argv.(1) with *)
-(* | String.empty -> Option.get (input_string_from_stdin ()) *)
-(* | "" -> *)
-(*    let file_ends_with ending = String.ends_with ~suffix:ending s in *)
-(*   if file_ends_with ".txt" || file_ends_with ".md" || file_ends_with ".html" *)
-(*   then input_string_from_file s *)
-(*   else "" *)
-
 let add_end_of_word_tokens input_string =
   let words = String.split_on_char ' ' input_string in
   List.fold_left (fun acc w -> (w ^ "_ ") ^ acc) "" words
 ;;
 
-let () =
+(* let () =
   Printf.printf
     "Input string with end of word tokens: %s\n"
     (add_end_of_word_tokens input_string)
-;;
+;; *)
 
-let create_vocab str =
+(* let create_vocab str =
   let rec create_vocab_impl str i acc =
     if i = String.length str
     then List.sort_uniq Stdlib.compare acc
@@ -45,18 +23,18 @@ let create_vocab str =
 
 let print_vocab vocab =
   let pp_char ppf char = Format.fprintf ppf "%c" char in
-  Format.printf
+ Format.printf
     "vocab: %a\n\n"
     (Format.pp_print_list ~pp_sep:(fun out () -> Format.fprintf out ", ") pp_char)
     vocab
-;;
+;; *)
 
-let () = print_vocab (create_vocab (add_end_of_word_tokens input_string))
+(* let () = print_vocab (create_vocab (add_end_of_word_tokens input_string))
 let () = Corpus.pretty_print (Corpus.create (add_end_of_word_tokens input_string))
 let corpus_vals = add_end_of_word_tokens input_string |> Corpus.create
 let tuplified_corpus_vals = Tuplified_corpus.tuplify corpus_vals
 let () = Tuplified_corpus.pretty_print tuplified_corpus_vals
-let pp_token_max fmt (x, y) = Format.fprintf fmt "most common token -> (%s, %s)\n" x y
+let pp_token_max fmt (x, y) = Format.fprintf fmt "most common token -> (%s, %s)\n" x y *)
 
 let get_token_max tuplified_corpus =
   let rec get_token_max_impl tuplified_corpus n ~token_max ~token_max_count =
@@ -109,7 +87,7 @@ let get_token_max tuplified_corpus =
 ;;
 
 (* printing most freq token tuple *)
-let () =
+(* let () =
   let token_max =
     add_end_of_word_tokens input_string
     |> Corpus.create
@@ -117,9 +95,9 @@ let () =
     |> get_token_max
   in
   pp_token_max Format.std_formatter token_max
-;;
+;; *)
 
-let () = Corpus.pretty_print (Corpus.create (add_end_of_word_tokens input_string))
+(* let () = Corpus.pretty_print (Corpus.create (add_end_of_word_tokens input_string)) *)
 (* let pp_string ppf s = Format.fprintf ppf "%s" s *)
 
 (* let pp_list list = *)
@@ -203,7 +181,25 @@ let corpus_learner (corpus : Corpus.t) (token_max : string * string) =
   Corpus.combine corpus_freqs (List.rev replace_tokens)
 ;;
 
-let () = Printf.printf "Replaced_corpus:\n"
+let () =
+  Printf.printf "Input your text: ";
+  Out_channel.flush Out_channel.stdout
+;;
+
+let input_string_from_file file = In_channel.with_open_bin file In_channel.input_all
+let input_string_from_stdin () = In_channel.input_line In_channel.stdin
+
+let input_string =
+  if Array.length Sys.argv > 1
+  then (
+    let user_input = Sys.argv.(1) in
+    match Sys.file_exists user_input with
+    | true -> input_string_from_file user_input
+    | false -> raise (Invalid_argument "File name provided does not exist, or is invalid"))
+  else (
+    let output_string = Option.get (input_string_from_stdin ()) in
+    output_string)
+;;
 
 let generate_corpus_stage i =
   let init_corpus = add_end_of_word_tokens input_string |> Corpus.create in
@@ -221,7 +217,6 @@ let generate_corpus_stage i =
     then corpus
     else (
       let current_token_max = corpus |> Tuplified_corpus.tuplify |> get_token_max in
-      Format.printf "%a" pp_token_max current_token_max;
       let corpus_learned = corpus_learner corpus current_token_max in
       generate_corpus_stage_impl corpus_learned (counter + 1))
   in
