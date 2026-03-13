@@ -1,4 +1,4 @@
-# dune exec -- ./main.exe
+# dune exec -- ./main.exe dune 2
 # OCAMLPARAM: unset
 # Shared cache: enabled-except-user-rules
 # Shared cache location: /Users/oisinmulhall/.cache/dune/db
@@ -13,7 +13,4 @@
 #  ; build_dir = In_build_dir "default"
 #  ; instrument_with = []
 #  }
-$ /nix/store/7idlml26ki8xbjb6v1pp6xn7m6y90g8h-ocaml-5.3.0/bin/ocamlc.opt -config > /var/folders/6p/rj8nxg6j635g74vhqy0pvp200000gn/T/dune_9adf7f_output
-$ (cd _build/default && /nix/store/7idlml26ki8xbjb6v1pp6xn7m6y90g8h-ocaml-5.3.0/bin/ocamldep.opt -modules -impl bin/corpus.ml) > _build/default/bin/.main.eobjs/dune__exe__Corpus.impl.d
-$ (cd _build/default && /nix/store/7idlml26ki8xbjb6v1pp6xn7m6y90g8h-ocaml-5.3.0/bin/ocamlopt.opt -w @1..3@5..28@31..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -I bin/.main.eobjs/byte -I bin/.main.eobjs/native -I lib/.bpe.objs/byte -I lib/.bpe.objs/native -cmi-file bin/.main.eobjs/byte/dune__exe__Corpus.cmi -no-alias-deps -opaque -open Dune__exe -o bin/.main.eobjs/native/dune__exe__Corpus.cmx -c -impl bin/corpus.ml)
-$ (cd _build/default && /nix/store/7idlml26ki8xbjb6v1pp6xn7m6y90g8h-ocaml-5.3.0/bin/ocamlopt.opt -w @1..3@5..28@31..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -o bin/main.exe lib/bpe.cmxa bin/.main.eobjs/native/dune__exe.cmx bin/.main.eobjs/native/dune__exe__Corpus.cmx bin/.main.eobjs/native/dune__exe__Tuplified_corpus.cmx bin/.main.eobjs/native/dune__exe__Main.cmx)
+$ /nix/store/qih154s0l8g20jad93pwbrfymfvya31a-ocaml-5.4.0/bin/ocamlc.opt -config > /var/folders/6p/rj8nxg6j635g74vhqy0pvp200000gn/T/dune_339281_output

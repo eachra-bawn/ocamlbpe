@@ -1,1 +1,1 @@
-bin/corpus.ml: Char Format List Stdlib String
+bin/corpus.ml: Char Format List Printf Stdlib String

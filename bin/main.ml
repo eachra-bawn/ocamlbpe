@@ -1,14 +1,3 @@
-let add_end_of_word_tokens input_string =
-  let words = String.split_on_char ' ' input_string in
-  List.fold_left (fun acc w -> (w ^ "_ ") ^ acc) "" words
-;;
-
-(* let () =
-  Printf.printf
-    "Input string with end of word tokens: %s\n"
-    (add_end_of_word_tokens input_string)
-;; *)
-
 (* let create_vocab str =
   let rec create_vocab_impl str i acc =
     if i = String.length str
@@ -19,11 +8,11 @@ let add_end_of_word_tokens input_string =
       | _ -> create_vocab_impl str (i + 1) (str.[i] :: acc))
   in
   create_vocab_impl str 0 []
-;;
+;; *)
 
-let print_vocab vocab =
+(* let print_vocab vocab =
   let pp_char ppf char = Format.fprintf ppf "%c" char in
- Format.printf
+  Format.printf
     "vocab: %a\n\n"
     (Format.pp_print_list ~pp_sep:(fun out () -> Format.fprintf out ", ") pp_char)
     vocab
@@ -38,53 +27,52 @@ let pp_token_max fmt (x, y) = Format.fprintf fmt "most common token -> (%s, %s)\
 
 let get_token_max tuplified_corpus =
   let rec get_token_max_impl tuplified_corpus n ~token_max ~token_max_count =
-    if n = Tuplified_corpus.length tuplified_corpus - 1
-    then token_max
-    else (
-      let tuplified_corpus_freqs = fst (Tuplified_corpus.split tuplified_corpus) in
-      let tuplified_corpus_vals = snd (Tuplified_corpus.split tuplified_corpus) in
+    if n = Tuplified_corpus.length tuplified_corpus - 1 then token_max
+    else
+      let tuplified_corpus_freqs =
+        fst (Tuplified_corpus.split tuplified_corpus)
+      in
+      let tuplified_corpus_vals =
+        snd (Tuplified_corpus.split tuplified_corpus)
+      in
       let tuplified_corpus_unravelled =
         List.combine tuplified_corpus_freqs tuplified_corpus_vals
       in
       let all_tuplified_tokens = List.flatten tuplified_corpus_vals in
-      if n > List.length all_tuplified_tokens - 1
-      then token_max
-      else (
+      if n > List.length all_tuplified_tokens - 1 then token_max
+      else
         let current_tuplified_token =
           try List.nth all_tuplified_tokens n with
           | Failure _ -> raise (Failure "current_tuplified_token Failure")
           | Invalid_argument _ ->
-            raise (Invalid_argument "current_tuplified_token Invalid_argument")
+              raise
+                (Invalid_argument "current_tuplified_token Invalid_argument")
           | _ -> List.nth all_tuplified_tokens n
         in
         let current_token_count =
           List.fold_left
             (fun acc corpus ->
-               if List.mem current_tuplified_token (snd corpus)
-               then
-                 (fst corpus
-                  * List.length
-                      (List.filter (fun t -> t = current_tuplified_token) (snd corpus)))
-                 + acc
-               else acc)
-            0
-            tuplified_corpus_unravelled
+              if List.mem current_tuplified_token (snd corpus) then
+                fst corpus
+                * List.length
+                    (List.filter
+                       (fun t -> t = current_tuplified_token)
+                       (snd corpus))
+                + acc
+              else acc)
+            0 tuplified_corpus_unravelled
         in
-        if current_token_count > token_max_count
-        then
-          get_token_max_impl
-            tuplified_corpus
-            (n + 1)
+        if current_token_count > token_max_count then
+          get_token_max_impl tuplified_corpus (n + 1)
             ~token_max:current_tuplified_token
             ~token_max_count:current_token_count
-        else get_token_max_impl tuplified_corpus (n + 1) ~token_max ~token_max_count))
+        else
+          get_token_max_impl tuplified_corpus (n + 1) ~token_max
+            ~token_max_count
   in
-  get_token_max_impl
-    tuplified_corpus
-    0
+  get_token_max_impl tuplified_corpus 0
     ~token_max:(Char.escaped ' ', Char.escaped ' ')
     ~token_max_count:0
-;;
 
 (* printing most freq token tuple *)
 (* let () =
@@ -119,9 +107,9 @@ let corpus_learner (corpus : Corpus.t) (token_max : string * string) =
       let first_fst_token_max_index =
         List.find_index (fun t -> t = fst_token_max_val) cv
       in
-      if cv = [] || original_cv = [] || first_fst_token_max_index = None
-      then None
-      else (
+      if cv = [] || original_cv = [] || first_fst_token_max_index = None then
+        None
+      else
         let first_fst_token_max_index_plus_acc =
           match first_fst_token_max_index with
           | None -> None
@@ -130,28 +118,37 @@ let corpus_learner (corpus : Corpus.t) (token_max : string * string) =
         let first_fst_token_max_index_plus_acc_val =
           Option.get first_fst_token_max_index_plus_acc
         in
-        let new_cv = List.drop (first_fst_token_max_index_plus_acc_val + 1) cv in
+        let new_cv =
+          List.drop (first_fst_token_max_index_plus_acc_val + 1) cv
+        in
         let tokens_dropped = List.length cv - List.length new_cv in
-        if List.length original_cv - 1 < first_fst_token_max_index_plus_acc_val + 1
+        if
+          List.length original_cv - 1
+          < first_fst_token_max_index_plus_acc_val + 1
         then first_fst_token_max_index_plus_acc
-        else (
+        else
           let check_for_snd_token_max =
             List.nth original_cv (first_fst_token_max_index_plus_acc_val + 1)
           in
-          if check_for_snd_token_max = snd_token_max_val
-          then first_fst_token_max_index_plus_acc
-          else search_fst_token_max_index_impl new_cv cv tokens_dropped))
+          if check_for_snd_token_max = snd_token_max_val then
+            first_fst_token_max_index_plus_acc
+          else search_fst_token_max_index_impl new_cv cv tokens_dropped
     in
     search_fst_token_max_index_impl cv cv 0
   in
-  let search_fst_token_max_index_val cv = Option.get (search_fst_token_max_index cv) in
+  let search_fst_token_max_index_val cv =
+    Option.get (search_fst_token_max_index cv)
+  in
   let search_snd_token_max_index cv =
-    List.find_index (fun t -> t = List.nth cv (search_fst_token_max_index_val cv + 1)) cv
+    List.find_index
+      (fun t -> t = List.nth cv (search_fst_token_max_index_val cv + 1))
+      cv
   in
   let corpus_vals_w_token_max =
     List.filter
       (fun cv ->
-         search_fst_token_max_index cv <> None && search_snd_token_max_index cv <> None)
+        search_fst_token_max_index cv <> None
+        && search_snd_token_max_index cv <> None)
       corpus_vals
   in
   let token_max_replacement = fst_token_max_val ^ snd_token_max_val in
@@ -159,11 +156,14 @@ let corpus_learner (corpus : Corpus.t) (token_max : string * string) =
     let insert_token_max =
       List.mapi
         (fun i t ->
-           if i = search_fst_token_max_index_val cv then token_max_replacement else t)
+          if i = search_fst_token_max_index_val cv then token_max_replacement
+          else t)
         cv
     in
     let old_snd_token_max_val_index =
-      match List.find_index (fun t -> t = snd_token_max_val) insert_token_max with
+      match
+        List.find_index (fun t -> t = snd_token_max_val) insert_token_max
+      with
       | None -> 80
       | Some i -> i
     in
@@ -172,58 +172,61 @@ let corpus_learner (corpus : Corpus.t) (token_max : string * string) =
   let replace_tokens =
     List.fold_left
       (fun acc cv ->
-         if List.mem cv corpus_vals_w_token_max
-         then replace_token_max_in_cv cv :: acc
-         else cv :: acc)
-      []
-      corpus_vals
+        if List.mem cv corpus_vals_w_token_max then
+          replace_token_max_in_cv cv :: acc
+        else cv :: acc)
+      [] corpus_vals
   in
   Corpus.combine corpus_freqs (List.rev replace_tokens)
-;;
 
-let () =
-  Printf.printf "Input your text: ";
-  Out_channel.flush Out_channel.stdout
-;;
+let input_string_from_file file =
+  In_channel.with_open_bin file In_channel.input_all
 
-let input_string_from_file file = In_channel.with_open_bin file In_channel.input_all
 let input_string_from_stdin () = In_channel.input_line In_channel.stdin
 
+let add_end_of_word_tokens input_string =
+  let words = String.split_on_char ' ' input_string in
+  List.fold_left (fun acc w -> (w ^ "_ ") ^ acc) "" words
+
 let input_string =
-  if Array.length Sys.argv > 1
-  then (
+  if Array.length Sys.argv > 1 then
     let user_input = Sys.argv.(1) in
     match Sys.file_exists user_input with
     | true -> input_string_from_file user_input
-    | false -> raise (Invalid_argument "File name provided does not exist, or is invalid"))
+    | false ->
+        raise
+          (Invalid_argument "File name provided does not exist, or is invalid")
   else (
+    Printf.printf "Input your text: ";
+    Out_channel.flush Out_channel.stdout;
     let output_string = Option.get (input_string_from_stdin ()) in
     output_string)
-;;
 
-let generate_corpus_stage i =
+let generate_corpus_stage =
+  let stage =
+    try
+      match Array.length Sys.argv with
+      | 3 -> int_of_string Sys.argv.(2)
+      | _ -> 0
+    with Invalid_argument _ -> failwith "wrong here"
+  in
   let init_corpus = add_end_of_word_tokens input_string |> Corpus.create in
   let init_token_max =
-    add_end_of_word_tokens input_string
-    |> Corpus.create
-    |> Tuplified_corpus.tuplify
-    |> get_token_max
+    init_corpus |> Tuplified_corpus.tuplify |> get_token_max
   in
   let init_corpus_learned = corpus_learner init_corpus init_token_max in
   let rec generate_corpus_stage_impl corpus counter =
-    if i = 0 || i = 1
-    then init_corpus_learned
-    else if i = counter
-    then corpus
-    else (
-      let current_token_max = corpus |> Tuplified_corpus.tuplify |> get_token_max in
+    if stage = 0 || stage = 1 then init_corpus_learned
+    else if counter = stage then corpus
+    else
+      let current_token_max =
+        corpus |> Tuplified_corpus.tuplify |> get_token_max
+      in
       let corpus_learned = corpus_learner corpus current_token_max in
-      generate_corpus_stage_impl corpus_learned (counter + 1))
+      generate_corpus_stage_impl corpus_learned (counter + 1)
   in
   generate_corpus_stage_impl init_corpus 0
-;;
 
 let () =
-  let generated_corpus = generate_corpus_stage 2 in
+  let generated_corpus = generate_corpus_stage in
   Corpus.pretty_print generated_corpus
-;;
