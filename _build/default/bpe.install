@@ -6,3 +6,6 @@ lib: [
 bin: [
   "_build/install/default/bin/bpe"
 ]
+doc: [
+  "_build/install/default/doc/bpe/README.md"
+]

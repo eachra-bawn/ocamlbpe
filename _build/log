@@ -1,4 +1,4 @@
-# dune exec -- ./main.exe dune 2
+# dune exec -- ./main.exe -file tests/lorem_ipsum.txt -iter 70
 # OCAMLPARAM: unset
 # Shared cache: enabled-except-user-rules
 # Shared cache location: /Users/oisinmulhall/.cache/dune/db
@@ -13,4 +13,4 @@
 #  ; build_dir = In_build_dir "default"
 #  ; instrument_with = []
 #  }
-$ /nix/store/qih154s0l8g20jad93pwbrfymfvya31a-ocaml-5.4.0/bin/ocamlc.opt -config > /var/folders/6p/rj8nxg6j635g74vhqy0pvp200000gn/T/dune_339281_output
+$ /nix/store/qih154s0l8g20jad93pwbrfymfvya31a-ocaml-5.4.0/bin/ocamlc.opt -config > /var/folders/6p/rj8nxg6j635g74vhqy0pvp200000gn/T/dune_76622a_output

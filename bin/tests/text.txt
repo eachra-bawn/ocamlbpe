@@ -1,4 +1,0 @@
-This is an example text file!
-	There is lots of tokens in here!
-		TABS!
-					WOO!

@@ -1,4 +1,5 @@
 (executable
  (public_name bpe)
  (name main)
- (libraries bpe))
+ (libraries cmd corpus tuplified_corpus)
+ (modes byte exe))

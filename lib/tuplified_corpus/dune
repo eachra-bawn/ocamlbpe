@@ -1,0 +1,3 @@
+(library
+  (name tuplified_corpus)
+  (libraries corpus))
