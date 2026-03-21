@@ -5,11 +5,11 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github eachra-bawn/ocamlbpe))
 
-(authors "Author Name <author@example.com>")
+(authors "Oisín Mulhall <mulhalloisin@gmail.com>")
 
-(maintainers "Maintainer Name <maintainer@example.com>")
+(maintainers "Oisín Mulhall <mulhalloisin@gmail.com>")
 
 (license LICENSE)
 
