@@ -1,9 +1,6 @@
 let doc_string = "bpe -file <file> [-iter] [<iter_size>]"
 let input_file = ref String.empty
 let iter_size = ref 0
-(* let anon_fun filename n =
-  input_file := filename;
-  iter_size := n *)
 
 let speclist =
   [

@@ -95,35 +95,7 @@ let get_token_max tuplified_corpus =
 (*   | Some x -> Printf.printf "option: %d\n" x *)
 (* ;; *)
 
-(* let fst_token_max_index ~corpus_val ~token_max =
-  let fst_token_max = fst token_max in
-  let fst_index =
-    match List.find_index (fun t -> t = fst_token_max) corpus_val with
-    | Some i -> ref (Some i)
-    | None ->
-        failwith "Could not get the first index of the first token_max value"
-  in
-  let rec get_index cv i =
-    if !i = None || cv = [] then None
-    else
-      let index =
-        let index_ref = ref (Some 0) in
-        while !index_ref != None do
-          index_ref := !i
-        done;
-        Option.get !index_ref
-      in
-      let new_cv = List.drop index corpus_val in
-      let snd_token_max = snd token_max in
-      let snd_index =
-        try List.nth cv index
-        with Failure _ -> failwith "Couldn't get second token_max index"
-      in
-      if snd_index = snd_token_max then Some index else get_index new_cv
-  in
-  get_index corpus_val fst_index *)
-
-let find_token_max_index ~(corpus_val : Corpus.Value.t) ~token_max =
+let find_token_max_index ~corpus_val ~token_max =
   let fst_token_max = fst token_max in
   let rec loop ~(cv : Corpus.Value.t) ~original_cv ~acc =
     let fst_token_max_index =
@@ -148,8 +120,7 @@ let find_token_max_index ~(corpus_val : Corpus.Value.t) ~token_max =
       let check_for_snd_token_max =
         Corpus.Value.nth original_cv (fst_token_max_index_plus_acc_val + 1)
       in
-      let snd_token_max = snd token_max in
-      if check_for_snd_token_max = snd_token_max then
+      if check_for_snd_token_max = snd token_max then
         fst_token_max_index_plus_acc
       else
         let tokens_dropped = Corpus.Value.compare_lengths ~v1:cv ~v2:new_cv in
@@ -157,7 +128,7 @@ let find_token_max_index ~(corpus_val : Corpus.Value.t) ~token_max =
   in
   loop ~cv:corpus_val ~original_cv:corpus_val ~acc:0
 
-let corpus_learner (corpus : Corpus.t) (token_max : string * string) =
+let corpus_learner corpus token_max =
   let corpus_freqs, corpus_vals = Corpus.split corpus in
   let fst_token_max_val = fst token_max in
   let snd_token_max_val = snd token_max in
