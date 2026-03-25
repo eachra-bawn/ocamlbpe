@@ -6,8 +6,8 @@ let rev (tuplified_corpus : t) = List.rev tuplified_corpus
 let nth (tuplified_corpus : t) = List.nth tuplified_corpus
 let split (tuplified_corpus : t) = List.split tuplified_corpus
 
-let tuplify (corpus : Corpus.t) =
-  let rec tuplify_impl (corpus : Corpus.t) acc n =
+let tuplify corpus =
+  let rec tuplify_impl corpus acc n =
     if n = Corpus.length corpus then List.rev acc
     else
       let current_corpus_val = Corpus.nth corpus n in

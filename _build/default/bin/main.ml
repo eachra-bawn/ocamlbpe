@@ -21,7 +21,7 @@ let () = Corpus.pretty_print (Corpus.create (add_end_of_word_tokens input_string
 let corpus_vals = add_end_of_word_tokens input_string |> Corpus.create
 let tuplified_corpus_vals = Tuplified_corpus.tuplify corpus_vals
 let () = Tuplified_corpus.pretty_print tuplified_corpus_vals
-let pp_token_max fmt (x, y) = Format.fprintf fmt "most common token -> (%s, %s)\n" x y *)
+*)
 
 let get_token_max tuplified_corpus =
   let rec get_token_max_impl tuplified_corpus n ~token_max ~token_max_count =
@@ -73,15 +73,6 @@ let get_token_max tuplified_corpus =
     ~token_max_count:0
 
 (* printing most freq token tuple *)
-(* let () =
-  let token_max =
-    add_end_of_word_tokens input_string
-    |> Corpus.create
-    |> Tuplified_corpus.tuplify
-    |> get_token_max
-  in
-  pp_token_max Format.std_formatter token_max
-;; *)
 
 (* let () = Corpus.pretty_print (Corpus.create (add_end_of_word_tokens input_string)) *)
 (* let pp_string ppf s = Format.fprintf ppf "%s" s *)
@@ -97,7 +88,7 @@ let get_token_max tuplified_corpus =
 
 let find_token_max_index ~corpus_val ~token_max =
   let fst_token_max = fst token_max in
-  let rec loop ~(cv : Corpus.Value.t) ~original_cv ~acc =
+  let rec loop cv original_cv acc =
     let fst_token_max_index =
       Corpus.Value.find_index ~f:(fun t -> t = fst_token_max) cv
     in
@@ -124,9 +115,9 @@ let find_token_max_index ~corpus_val ~token_max =
         fst_token_max_index_plus_acc
       else
         let tokens_dropped = Corpus.Value.compare_lengths ~v1:cv ~v2:new_cv in
-        loop ~cv:new_cv ~original_cv:cv ~acc:tokens_dropped
+        loop new_cv cv tokens_dropped
   in
-  loop ~cv:corpus_val ~original_cv:corpus_val ~acc:0
+  loop corpus_val corpus_val 0
 
 let corpus_learner corpus token_max =
   let corpus_freqs, corpus_vals = Corpus.split corpus in
@@ -136,34 +127,41 @@ let corpus_learner corpus token_max =
     find_token_max_index ~corpus_val:cv ~token_max
   in
   let fst_token_max_index_val cv = Option.get (find_fst_token_max_val cv) in
-  let search_snd_token_max_index cv =
+  let find_snd_token_max_index cv =
     Corpus.Value.find_index
       ~f:(fun t -> t = Corpus.Value.nth cv (fst_token_max_index_val cv + 1))
       cv
   in
+  (* let find_snd_token_max_index_val cv =
+    Option.get (find_snd_token_max_index cv)
+  in *)
+  let filter_check cv =
+    find_fst_token_max_val cv <> None && find_snd_token_max_index cv <> None
+  in
   let corpus_vals_w_token_max =
-    Corpus.Value.list_filter
-      ~f:(fun cv ->
-        find_fst_token_max_val cv <> None
-        && search_snd_token_max_index cv <> None)
-      corpus_vals
+    Corpus.Value.list_filter ~f:(fun cv -> filter_check cv) corpus_vals
   in
   let token_max_replacement = fst_token_max_val ^ snd_token_max_val in
   let replace_token_max_in_cv cv =
-    let insert_token_max =
-      Corpus.Value.mapi
-        ~f:(fun i t ->
-          if i = fst_token_max_index_val cv then token_max_replacement else t)
-        cv
+    let helper i t =
+      if
+        i = fst_token_max_index_val cv
+        (* && i + 1 = find_snd_token_max_index_val cv *)
+      then token_max_replacement
+      else t
     in
+    let insert_token_max = Corpus.Value.mapi ~f:(fun i t -> helper i t) cv in
     let old_snd_token_max_val_index =
-      match
-        Corpus.Value.find_index
-          ~f:(fun t -> t = snd_token_max_val)
-          insert_token_max
-      with
-      | None -> 80
-      | Some i -> i
+      let insert_token_max_index =
+        match
+          Corpus.Value.find_index
+            ~f:(fun t -> t = token_max_replacement)
+            insert_token_max
+        with
+        | None -> failwith "Could not find token_max_replacement value."
+        | Some x -> x
+      in
+      insert_token_max_index + 1
     in
     Corpus.Value.filteri
       ~f:(fun i _ -> i != old_snd_token_max_val_index)
@@ -201,12 +199,16 @@ let add_end_of_word_tokens input_string =
   let words = String.split_on_char ' ' input_string in
   List.fold_left (fun acc w -> (w ^ "_ ") ^ acc) "" words
 
+let pp_token_max (x, y) =
+  Format.fprintf Format.std_formatter "most common token -> (%s, %s)\n" x y
+
 let generate_corpus_stage =
   let iter_size = !Cmd.iter_size in
   let init_corpus = add_end_of_word_tokens input_string |> Corpus.create in
   let init_token_max =
     init_corpus |> Tuplified_corpus.tuplify |> get_token_max
   in
+  pp_token_max init_token_max;
   let init_corpus_learned = corpus_learner init_corpus init_token_max in
   let rec generate_corpus_stage_impl corpus counter =
     if iter_size = 0 || iter_size = 1 then init_corpus_learned
@@ -215,6 +217,7 @@ let generate_corpus_stage =
       let current_token_max =
         corpus |> Tuplified_corpus.tuplify |> get_token_max
       in
+      pp_token_max current_token_max;
       let corpus_learned = corpus_learner corpus current_token_max in
       generate_corpus_stage_impl corpus_learned (counter + 1)
   in
